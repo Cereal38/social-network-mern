@@ -1,8 +1,13 @@
 // Configure the DB datas
 
+// Help to create object and connect to the Mangodb database
 const mongoose = require('mongoose');
+
 // isEmail return true if valid email
 const { isEmail } = require('validator');
+
+// Encrypt passwords
+const bcrypt = require('bcrypt');
 
 // Create user schema (JS object)
 const userSchema = new mongoose.Schema(
@@ -33,6 +38,11 @@ const userSchema = new mongoose.Schema(
 				maxLength: 1024, // Big number cause of crypted passwords
 			},
 
+			picture: {
+				type: String, // Can't stock image itself (just the link)
+				default: './uploads/profil/random-user.png', // If no picture selected
+			},
+
 			bio: {
 				type: String,
 				maxLength: 1024,
@@ -54,6 +64,18 @@ const userSchema = new mongoose.Schema(
 			timestamps: true, // Logs
 		}
 	);
+
+// Encrypt password before send it to the DB using bcrypt dependence
+// Not an arrow function 'cause of the this
+userSchema.pre("save", async function(next) {
+	// Salt password = Add some randoms char to the password to improve crack difficulty
+	const salt = await bcrypt.genSalt();
+	// Encrypt it
+	this.password = await bcrypt.hash(this.password, salt);
+
+	next();
+});
+
 
 // Export
 const UserModel	= mongoose.model('user', userSchema);
