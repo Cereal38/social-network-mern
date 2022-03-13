@@ -36,10 +36,12 @@ module.exports.updateUser = async (req, res) => {
 	if (!ObjectID.isValid(req.params.id)) { return res.status(400).send("ID unknown : " + req.params.id) }
 	else {
 		try {
-
-			console.log(req.params.bio)
+			// Filter = ID of the user to update
 			const filter = { _id: req.params.id };
-			const update = { bio: req.params.bio, };
+
+			// Update = Changes to make
+			const update = { bio: req.body.bio, };
+
 			const options = {
 				new: true, // Update DB with a new doc
 				upsert: true // Make this update into an upsert
@@ -51,28 +53,23 @@ module.exports.updateUser = async (req, res) => {
 			.catch((err) => res.status(500).send({ message: err }));
 
 		} catch (err) {
-			return res.status(500).json({message: err})
+			return res.status(500).json({ message: err })
 		}
 	};
 };
 
+// deleteUser
+module.exports.deleteUser = async (req, res) => {
+	
+	if (!ObjectID.isValid(req.params.id)) { return res.status(400).send("Unknown ID : " + req.params.id);  }
+	else {
+		try {
+			const filter = { _id: req.params.body };
 
-// module.exports.updateUser = async (req, res) => {
+			await deleteOne(filter);
+		} catch (err) {
+			return res.status(500).json({ message: err })
+		}
+	}
 
-// 	if (!ObjectID.isValid(req.params.id)) { return res.status(400).send("ID unknown : " + req.params.id) }
-// 	else {
-// 		try {
-
-// 			const query = {_id: req.params.id}; // Query here
-// 			const update = { $set: { bio: req.body.bio } }; // Update in json here
-// 			const option = { new: true }; // Will return updated document
-
-// 			await UserModel.findOneAndUpdate(query , update, option)
-// 				.then((docs) => res.send(docs))
-// 				.catch((err) => res.status(500).send({ message: err }));			
-
-// 		} catch (err) {
-// 			return res.status(500).json({message: err})
-// 		}
-// 	};
-// };
+};
