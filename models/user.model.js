@@ -77,6 +77,26 @@ userSchema.pre("save", async function(next) {
 });
 
 
+// Encrypt password while login
+userSchema.statics.login = async function (email, password) {
+
+	// Find the user with email
+	const user = await this.findOne({ email });
+	if (user) {
+
+		// Check if password is right, using bcrypt
+		const auth = await bcrypt.compare(password, user.password);
+
+		// If password is right
+		if (auth) {
+			return user;
+		}
+		throw Error('Incorrect password');
+	}
+	throw Error('Incorrect Email');
+};
+
+
 // Export
 const UserModel	= mongoose.model('user', userSchema);
 module.exports = UserModel;
